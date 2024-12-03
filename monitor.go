@@ -8,7 +8,7 @@ import (
     "time"
 )
 
-// FileInfo stores metadata about monitored files
+// FileInfo speichert Metadaten über überwachte Dateien
 type FileInfo struct {
     Path         string
     Size         int64
@@ -16,11 +16,11 @@ type FileInfo struct {
     Permissions  os.FileMode
 }
 
-// Monitor watches specified directories for changes
+// Monitor überwacht bestimmte Verzeichnisse auf Änderungen
 func Monitor(paths []string, interval time.Duration) {
     fileMap := make(map[string]FileInfo)
     
-    // Initial scan of files
+    // Erster Scan der Dateien
     for _, path := range paths {
         err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
             if err != nil {
@@ -35,11 +35,11 @@ func Monitor(paths []string, interval time.Duration) {
             return nil
         })
         if err != nil {
-            log.Printf("Error scanning path %s: %v\n", path, err)
+            log.Printf("Fehler beim Scannen des Pfads %s: %v\n", path, err)
         }
     }
     
-    // Monitoring loop
+    // Überwachungsschleife
     ticker := time.NewTicker(interval)
     for range ticker.C {
         for _, path := range paths {
@@ -48,24 +48,24 @@ func Monitor(paths []string, interval time.Duration) {
                     return err
                 }
                 
-                // Check if file is new
+                // Prüfen, ob die Datei neu ist
                 oldInfo, exists := fileMap[path]
                 if !exists {
-                    log.Printf("New file detected: %s\n", path)
+                    log.Printf("Neue Datei erkannt: %s\n", path)
                 } else {
-                    // Check for modifications
+                    // Auf Änderungen prüfen
                     if info.Size() != oldInfo.Size {
-                        log.Printf("File size changed: %s\n", path)
+                        log.Printf("Dateigröße geändert: %s\n", path)
                     }
                     if info.ModTime() != oldInfo.LastModified {
-                        log.Printf("File modified: %s\n", path)
+                        log.Printf("Datei modifiziert: %s\n", path)
                     }
                     if info.Mode() != oldInfo.Permissions {
-                        log.Printf("File permissions changed: %s\n", path)
+                        log.Printf("Dateiberechtigungen geändert: %s\n", path)
                     }
                 }
                 
-                // Update file info
+                // Dateiinformationen aktualisieren
                 fileMap[path] = FileInfo{
                     Path:         path,
                     Size:         info.Size(),
@@ -75,19 +75,19 @@ func Monitor(paths []string, interval time.Duration) {
                 return nil
             })
             if err != nil {
-                log.Printf("Error monitoring path %s: %v\n", path, err)
+                log.Printf("Fehler bei der Überwachung des Pfads %s: %v\n", path, err)
             }
         }
     }
 }
 
 func main() {
-    // Directories to monitor
+    // Zu überwachende Verzeichnisse
     paths := []string{
-        ".", // Current directory
-        // Add more paths as needed
+        ".", // Aktuelles Verzeichnis
+        // Hier können weitere Pfade hinzugefügt werden
     }
     
-    fmt.Println("Starting file system monitor...")
+    fmt.Println("Starte Dateisystem-Monitor...")
     Monitor(paths, 5*time.Second)
 }
